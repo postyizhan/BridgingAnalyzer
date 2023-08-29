@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("all")
 public class ReflectionUtils {
     public static Constructor<?> getConstructor(Class<?> clazz, Class<?>... parameterTypes)
             throws NoSuchMethodException {

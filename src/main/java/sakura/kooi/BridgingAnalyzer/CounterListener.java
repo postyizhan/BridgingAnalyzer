@@ -51,11 +51,12 @@ public class CounterListener implements Listener {
     }
 
     @EventHandler
-    public void onLiqudFlow(BlockFromToEvent e) {
+    public void onLiquidFlow(BlockFromToEvent e) {
         e.setCancelled(true);
     }
 
     @EventHandler
+    @SuppressWarnings("deprecation")
     public void onPlaceBlock(BlockPlaceEvent e) {
         if (e.isCancelled()) return;
         if (e.getPlayer() != null) {
@@ -65,12 +66,15 @@ public class CounterListener implements Listener {
             if (c.isSpeedCountEnabled()) {
                 TitleUtils.sendTitle(e.getPlayer(), "", "§b" + c.getBridgeSpeed() + " block/s", 1, 40, 1);
             }
-            Bukkit.getScheduler().runTaskLater(BridgingAnalyzer.getInstance(), () -> e.getPlayer().getInventory().addItem(new ItemStack(e.getPlayer().getItemInHand().getType(), 1, (short) 0, e.getPlayer().getItemInHand().getData().getData())), 1);
+            //Bukkit.getScheduler().runTaskLater(BridgingAnalyzer.getInstance(), () -> e.getPlayer().getInventory().addItem(new ItemStack(e.getPlayer().getItemInHand().getType(), 1, (short) 0, e.getPlayer().getItemInHand().getData().getData())), 1);
+            final ItemStack mainHand = e.getPlayer().getItemInHand();
+            final ItemStack item = new ItemStack(mainHand.getType(), 1, (short) 0, mainHand.getData().getData());
+            Bukkit.getScheduler().runTaskLater(BridgingAnalyzer.getInstance(), () -> e.getPlayer().getInventory().addItem(item), 1);
         }
     }
 
     @EventHandler
-    public void onPlaceLiqud(PlayerBucketEmptyEvent e) {
+    public void onPlaceLiquid(PlayerBucketEmptyEvent e) {
         if (e.isCancelled()) return;
         if (e.getPlayer() != null) {
             if (e.getPlayer().getGameMode() == GameMode.CREATIVE) return;

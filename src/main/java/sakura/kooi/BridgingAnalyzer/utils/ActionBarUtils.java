@@ -5,9 +5,10 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class ActionBarUtils {
     public static boolean works;
-    public static String nmsver;
+    public static String nmsVersion;
     private static Class<?> classCraftPlayer;
     private static Class<?> classPacketChat;
     private static Class<?> classChatSerializer;
@@ -20,22 +21,22 @@ public class ActionBarUtils {
 
     static {
         try {
-            nmsver = org.bukkit.Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-            classCraftPlayer = Class.forName("org.bukkit.craftbukkit." + nmsver + ".entity.CraftPlayer");
-            classPacketChat = Class.forName("net.minecraft.server." + nmsver + ".PacketPlayOutChat");
-            Class<?> classPacket = Class.forName("net.minecraft.server." + nmsver + ".Packet");
-            if (nmsver.equalsIgnoreCase("v1_8_R1") || nmsver.equalsIgnoreCase("v1_7_")) {
-                classChatSerializer = Class.forName("net.minecraft.server." + nmsver + ".ChatSerializer");
-                classIChatComponent = Class.forName("net.minecraft.server." + nmsver + ".IChatBaseComponent");
+            nmsVersion = org.bukkit.Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+            classCraftPlayer = Class.forName("org.bukkit.craftbukkit." + nmsVersion + ".entity.CraftPlayer");
+            classPacketChat = Class.forName("net.minecraft.server." + nmsVersion + ".PacketPlayOutChat");
+            Class<?> classPacket = Class.forName("net.minecraft.server." + nmsVersion + ".Packet");
+            if (nmsVersion.equalsIgnoreCase("v1_8_R1") || nmsVersion.equalsIgnoreCase("v1_7_")) {
+                classChatSerializer = Class.forName("net.minecraft.server." + nmsVersion + ".ChatSerializer");
+                classIChatComponent = Class.forName("net.minecraft.server." + nmsVersion + ".IChatBaseComponent");
                 methodSeralizeString = classChatSerializer.getDeclaredMethod("a", String.class);
             } else {
-                classChatComponentText = Class.forName("net.minecraft.server." + nmsver + ".ChatComponentText");
-                classIChatComponent = Class.forName("net.minecraft.server." + nmsver + ".IChatBaseComponent");
+                classChatComponentText = Class.forName("net.minecraft.server." + nmsVersion + ".ChatComponentText");
+                classIChatComponent = Class.forName("net.minecraft.server." + nmsVersion + ".IChatBaseComponent");
             }
             methodGetHandle = classCraftPlayer.getDeclaredMethod("getHandle");
-            Class<?> classEntityPlayer = Class.forName("net.minecraft.server." + nmsver + ".EntityPlayer");
+            Class<?> classEntityPlayer = Class.forName("net.minecraft.server." + nmsVersion + ".EntityPlayer");
             fieldConnection = classEntityPlayer.getDeclaredField("playerConnection");
-            Class<?> classPlayerConnection = Class.forName("net.minecraft.server." + nmsver + ".PlayerConnection");
+            Class<?> classPlayerConnection = Class.forName("net.minecraft.server." + nmsVersion + ".PlayerConnection");
             methodSendPacket = classPlayerConnection.getDeclaredMethod("sendPacket", classPacket);
             works = true;
         } catch (Exception e) {
@@ -43,12 +44,13 @@ public class ActionBarUtils {
         }
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     public static void sendActionBar(Player player, String message) {
         if (!works) return;
         try {
             Object p = classCraftPlayer.cast(player);
             Object ppoc;
-            if (nmsver.equalsIgnoreCase("v1_8_R1") || nmsver.equalsIgnoreCase("v1_7_")) {
+            if (nmsVersion.equalsIgnoreCase("v1_8_R1") || nmsVersion.equalsIgnoreCase("v1_7_")) {
                 Object cbc = classIChatComponent.cast(methodSeralizeString.invoke(classChatSerializer, "{\"text\": \"" + message + "\"}"));
                 ppoc = classPacketChat.getConstructor(new Class<?>[]{classIChatComponent, byte.class}).newInstance(cbc, (byte) 2);
             } else {

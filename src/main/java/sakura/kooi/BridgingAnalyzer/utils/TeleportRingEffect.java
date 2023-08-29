@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitTask;
 import sakura.kooi.BridgingAnalyzer.BridgingAnalyzer;
 
+@SuppressWarnings("all")
 public abstract class TeleportRingEffect implements Runnable {
     int circleElements = 40;
     double radius = 1.0;

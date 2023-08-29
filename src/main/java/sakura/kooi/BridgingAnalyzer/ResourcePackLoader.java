@@ -8,6 +8,7 @@ import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 
 public class ResourcePackLoader implements Listener {
+    @SuppressWarnings("SpellCheckingInspection")
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Bukkit.getScheduler().runTaskLater(BridgingAnalyzer.getInstance(),

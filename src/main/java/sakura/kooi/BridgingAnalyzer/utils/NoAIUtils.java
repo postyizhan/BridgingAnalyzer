@@ -4,8 +4,9 @@ import org.bukkit.entity.Entity;
 
 import java.lang.reflect.Method;
 
+@SuppressWarnings("CallToPrintStackTrace")
 public class NoAIUtils {
-    private static boolean works;
+    private static final boolean works;
     private static Class<?> clsCraftEntity = null;
     private static Method mhdGetHandle = null;
     private static Method mhdGetNBTTag = null;
@@ -32,7 +33,6 @@ public class NoAIUtils {
             mhdSetTag = clsNMSEntity.getDeclaredMethod("f", clsNBTTagCompound);
         } catch (Exception e) {
             e.printStackTrace();
-            works = false;
         }
         works = true;
     }

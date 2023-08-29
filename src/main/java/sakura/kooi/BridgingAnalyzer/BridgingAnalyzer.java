@@ -31,13 +31,14 @@ import sakura.kooi.BridgingAnalyzer.api.BlockSkinProvider;
 
 import java.util.HashMap;
 
+@SuppressWarnings("LombokGetterMayBeUsed")
 public class BridgingAnalyzer extends JavaPlugin implements Listener {
     @Getter
     private static BridgingAnalyzer instance;
     @Getter
-    private static HashMap<Player, Counter> counters = new HashMap<>();
+    public static final HashMap<Player, Counter> counters = new HashMap<>();
     @Getter
-    private static HashMap<Block, MaterialData> placedBlocks = new HashMap<>();
+    private static final HashMap<Block, MaterialData> placedBlocks = new HashMap<>();
     @Setter
     private static BlockSkinProvider blockSkinProvider;
 
@@ -110,7 +111,7 @@ public class BridgingAnalyzer extends JavaPlugin implements Listener {
     }
 
     public static boolean isPlacedByPlayer(Block b) {
-        if (getPlacedBlocks().containsKey(b)) return getPlacedBlocks().get(b).equals(b.getState().getData());
+        if (placedBlocks.containsKey(b)) return placedBlocks.get(b).equals(b.getState().getData());
         return false;
     }
 

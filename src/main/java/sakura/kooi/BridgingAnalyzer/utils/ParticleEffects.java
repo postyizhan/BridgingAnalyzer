@@ -1,5 +1,6 @@
 package sakura.kooi.BridgingAnalyzer.utils;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"unused", "SpellCheckingInspection"})
+@Getter
 public enum ParticleEffects {
     FIREWORKS_SPARK("fireworksSpark", 3, -1, ParticleProperty.DIRECTIONAL),
     SPELL_MOB("mobSpell", 15, -1, ParticleProperty.COLORABLE),
@@ -28,8 +31,8 @@ public enum ParticleEffects {
     BLOCK_CRACK("blockcrack", 37, -1, ParticleProperty.DIRECTIONAL, ParticleProperty.REQUIRES_DATA),
     BLOCK_DUST("blockdust", 38, 7, ParticleProperty.DIRECTIONAL, ParticleProperty.REQUIRES_DATA);
 
-    private static Map<String, ParticleEffects> NAME_MAP;
-    private static Map<Integer, ParticleEffects> ID_MAP;
+    private static final Map<String, ParticleEffects> NAME_MAP;
+    private static final Map<Integer, ParticleEffects> ID_MAP;
 
     static {
         NAME_MAP = new HashMap<>();
@@ -40,10 +43,10 @@ public enum ParticleEffects {
         }
     }
 
-    private String name;
-    private int id;
-    private int requiredVersion;
-    private List<ParticleProperty> properties;
+    private final String name;
+    private final int id;
+    private final int requiredVersion;
+    private final List<ParticleProperty> properties;
 
     ParticleEffects(String name, int id, int requiredVersion,
                     ParticleProperty... properties) {
@@ -70,22 +73,12 @@ public enum ParticleEffects {
 
     private static boolean isDataCorrect(ParticleEffects effect,
                                          ParticleData data) {
-        return effect != BLOCK_CRACK && effect != BLOCK_DUST
-                || data instanceof BlockData || effect == ITEM_CRACK && data instanceof ItemData;
+        return (effect == BLOCK_CRACK || effect == BLOCK_DUST) && !(data instanceof BlockData);
     }
 
     private static boolean isColorCorrect(ParticleEffects effect,
                                           ParticleColor color) {
-        return effect != SPELL_MOB && effect != SPELL_MOB_AMBIENT && effect != REDSTONE
-                || color instanceof OrdinaryColor || effect == NOTE && color instanceof NoteColor;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getId() {
-        return id;
+        return effect != SPELL_MOB && effect != SPELL_MOB_AMBIENT && effect != REDSTONE || color instanceof OrdinaryColor;
     }
 
     public boolean hasProperty(ParticleProperty property) {
@@ -94,17 +87,17 @@ public enum ParticleEffects {
 
     public boolean isSupported() {
         if (requiredVersion == -1)
-            return true;
-        return ParticlePacket.getVersion() >= requiredVersion;
+            return false;
+        return ParticlePacket.version < requiredVersion;
     }
 
     public void display(float offsetX, float offsetY, float offsetZ,
                         float speed, int amount, Location center, double range)
             throws ParticleEffects.ParticleVersionException,
             ParticleEffects.ParticleDataException, IllegalArgumentException {
-        if (!isSupported())
+        if (isSupported())
             throw new ParticleVersionException(
-                    "This particle effect is not supported by your server version");
+            );
         if (hasProperty(ParticleProperty.REQUIRES_DATA))
             throw new ParticleDataException(
                     "This particle effect requires additional data");
@@ -126,13 +119,13 @@ public enum ParticleEffects {
                         float offsetZ, float speed, int amount, Location center,
                         double range) throws ParticleEffects.ParticleVersionException,
             ParticleEffects.ParticleDataException {
-        if (!isSupported())
+        if (isSupported())
             throw new ParticleVersionException(
-                    "This particle effect is not supported by your server version");
+            );
         if (!hasProperty(ParticleProperty.REQUIRES_DATA))
             throw new ParticleDataException(
                     "This particle effect does not require additional data");
-        if (!isDataCorrect(this, data))
+        if (isDataCorrect(this, data))
             throw new ParticleDataException(
                     "The particle data type is incorrect");
         new ParticlePacket(this, offsetX, offsetY, offsetZ, speed, amount,
@@ -144,13 +137,13 @@ public enum ParticleEffects {
                         List<Player> players)
             throws ParticleEffects.ParticleVersionException,
             ParticleEffects.ParticleDataException {
-        if (!isSupported())
+        if (isSupported())
             throw new ParticleVersionException(
-                    "This particle effect is not supported by your server version");
+            );
         if (!hasProperty(ParticleProperty.REQUIRES_DATA))
             throw new ParticleDataException(
                     "This particle effect does not require additional data");
-        if (!isDataCorrect(this, data))
+        if (isDataCorrect(this, data))
             throw new ParticleDataException(
                     "The particle data type is incorrect");
         new ParticlePacket(this, offsetX, offsetY, offsetZ, speed, amount,
@@ -169,13 +162,13 @@ public enum ParticleEffects {
                         Location center, double range)
             throws ParticleEffects.ParticleVersionException,
             ParticleEffects.ParticleDataException {
-        if (!isSupported())
+        if (isSupported())
             throw new ParticleVersionException(
-                    "This particle effect is not supported by your server version");
+            );
         if (!hasProperty(ParticleProperty.REQUIRES_DATA))
             throw new ParticleDataException(
                     "This particle effect does not require additional data");
-        if (!isDataCorrect(this, data))
+        if (isDataCorrect(this, data))
             throw new ParticleDataException(
                     "The particle data type is incorrect");
         new ParticlePacket(this, direction, speed, range > 256.0D, data)
@@ -186,13 +179,13 @@ public enum ParticleEffects {
                         Location center, List<Player> players)
             throws ParticleEffects.ParticleVersionException,
             ParticleEffects.ParticleDataException {
-        if (!isSupported())
+        if (isSupported())
             throw new ParticleVersionException(
-                    "This particle effect is not supported by your server version");
+            );
         if (!hasProperty(ParticleProperty.REQUIRES_DATA))
             throw new ParticleDataException(
                     "This particle effect does not require additional data");
-        if (!isDataCorrect(this, data))
+        if (isDataCorrect(this, data))
             throw new ParticleDataException(
                     "The particle data type is incorrect");
         new ParticlePacket(this, direction, speed, isLongDistance(center,
@@ -225,28 +218,12 @@ public enum ParticleEffects {
         }
     }
 
+    @SuppressWarnings("all")
     public void display(ParticleData data, Vector direction, float speed,
                         Location center, Player... players)
             throws ParticleEffects.ParticleVersionException,
             ParticleEffects.ParticleDataException {
         display(data, direction, speed, center, Arrays.asList(players));
-    }
-
-    public ParticleData getData(Material material, Byte blockData) {
-        ParticleData data = null;
-        if (blockData == null) {
-            blockData = 0;
-        }
-        if ((this == ParticleEffects.BLOCK_CRACK
-                || this == ParticleEffects.ITEM_CRACK || this == ParticleEffects.BLOCK_DUST)
-                && material != null && material != Material.AIR) {
-            if (this == ParticleEffects.ITEM_CRACK) {
-                data = new ItemData(material, blockData);
-            } else {
-                data = new BlockData(material, blockData);
-            }
-        }
-        return data;
     }
 
     /*
@@ -261,37 +238,20 @@ public enum ParticleEffects {
         }
     }
 
+    @SuppressWarnings({"deprecation", "LombokGetterMayBeUsed"})
     public static abstract class ParticleData {
-        private Material material;
-        private byte data;
-        private int[] packetData;
+        @Getter
+        private final Material material;
+        @Getter
+        private final int[] packetData;
 
         public ParticleData(Material material, byte data) {
             this.material = material;
-            this.data = data;
             packetData = new int[]{material.getId(), data};
-        }
-
-        public Material getMaterial() {
-            return material;
-        }
-
-        public byte getData() {
-            return data;
-        }
-
-        public int[] getPacketData() {
-            return packetData;
         }
 
         public String getPacketDataString() {
             return "_" + packetData[0] + "_" + packetData[1];
-        }
-    }
-
-    public static class ItemData extends ParticleEffects.ParticleData {
-        public ItemData(Material material, byte data) {
-            super(material, data);
         }
     }
 
@@ -306,18 +266,21 @@ public enum ParticleEffects {
     }
 
     public static abstract class ParticleColor {
+        @SuppressWarnings("unused")
         public abstract float getValueX();
 
+        @SuppressWarnings("unused")
         public abstract float getValueY();
 
+        @SuppressWarnings("unused")
         public abstract float getValueZ();
     }
 
     public static class OrdinaryColor extends
             ParticleEffects.ParticleColor {
-        private int red;
-        private int green;
-        private int blue;
+        private final int red;
+        private final int green;
+        private final int blue;
 
         public OrdinaryColor(int red, int green, int blue)
                 throws IllegalArgumentException {
@@ -344,18 +307,6 @@ public enum ParticleEffects {
             this.blue = blue;
         }
 
-        public int getRed() {
-            return red;
-        }
-
-        public int getGreen() {
-            return green;
-        }
-
-        public int getBlue() {
-            return blue;
-        }
-
         @Override
         public float getValueX() {
             return red / 255.0F;
@@ -372,60 +323,24 @@ public enum ParticleEffects {
         }
     }
 
-    public static class NoteColor extends ParticleEffects.ParticleColor {
-        private int note;
-
-        public NoteColor(int note) throws IllegalArgumentException {
-            if (note < 0)
-                throw new IllegalArgumentException(
-                        "The note value is lower than 0");
-            if (note > 24)
-                throw new IllegalArgumentException(
-                        "The note value is higher than 24");
-            this.note = note;
-        }
-
-        @Override
-        public float getValueX() {
-            return note / 24.0F;
-        }
-
-        @Override
-        public float getValueY() {
-            return 0.0F;
-        }
-
-        @Override
-        public float getValueZ() {
-            return 0.0F;
-        }
-    }
-
-    private static class ParticleDataException extends RuntimeException {
-        private static long serialVersionUID = 3203085387160737484L;
+    public static class ParticleDataException extends RuntimeException {
+        private static final long serialVersionUID = 3203085387160737484L;
 
         public ParticleDataException(String message) {
-            super();
+            super(message);
         }
     }
 
-    private static class ParticleColorException extends RuntimeException {
-        private static long serialVersionUID = 3203085387160737484L;
-
-        public ParticleColorException(String message) {
-            super();
-        }
-    }
-
-    private static class ParticleVersionException extends
+    public static class ParticleVersionException extends
             RuntimeException {
-        private static long serialVersionUID = 3203085387160737484L;
+        private static final long serialVersionUID = 3203085387160737484L;
 
-        public ParticleVersionException(String message) {
+        public ParticleVersionException() {
             super();
         }
     }
 
+    @Getter
     public static class ParticlePacket {
         private static int version;
         private static Class<?> enumParticle;
@@ -434,14 +349,14 @@ public enum ParticleEffects {
         private static Field playerConnection;
         private static Method sendPacket;
         private static boolean initialized;
-        private ParticleEffects effect;
-        private float offsetX;
-        private float offsetY;
-        private float offsetZ;
-        private float speed;
-        private int amount;
-        private boolean longDistance;
-        private ParticleEffects.ParticleData data;
+        private final ParticleEffects effect;
+        private final float offsetX;
+        private final float offsetY;
+        private final float offsetZ;
+        private final float speed;
+        private final int amount;
+        private final boolean longDistance;
+        private final ParticleEffects.ParticleData data;
         private Object packet;
 
         public ParticlePacket(ParticleEffects effect, float offsetX,
@@ -469,12 +384,6 @@ public enum ParticleEffects {
                 throws IllegalArgumentException {
             this(effect, (float) direction.getX(), (float) direction.getY(),
                     (float) direction.getZ(), speed, 0, longDistance, data);
-        }
-
-        public ParticlePacket(ParticleEffects effect,
-                              ParticleEffects.ParticleColor color, boolean longDistance) {
-            this(effect, color.getValueX(), color.getValueY(), color
-                    .getValueZ(), 1.0F, 0, longDistance, null);
         }
 
         public static void initialize()
@@ -512,14 +421,6 @@ public enum ParticleEffects {
                         exception);
             }
             initialized = true;
-        }
-
-        public static int getVersion() {
-            return version;
-        }
-
-        public static boolean isInitialized() {
-            return initialized;
         }
 
         private void initializePacket(Location center)
@@ -604,30 +505,30 @@ public enum ParticleEffects {
             }
         }
 
-        private static class VersionIncompatibleException extends
+        public static class VersionIncompatibleException extends
                 RuntimeException {
-            private static long serialVersionUID = 3203085387160737484L;
+            private static final long serialVersionUID = 3203085387160737484L;
 
             public VersionIncompatibleException(String message, Throwable cause) {
-                super(cause);
+                super(message, cause);
             }
         }
 
-        private static class PacketInstantiationException extends
+        public static class PacketInstantiationException extends
                 RuntimeException {
-            private static long serialVersionUID = 3203085387160737484L;
+            private static final long serialVersionUID = 3203085387160737484L;
 
             public PacketInstantiationException(String message, Throwable cause) {
-                super(cause);
+                super(message, cause);
             }
         }
 
-        private static class PacketSendingException extends
+        public static class PacketSendingException extends
                 RuntimeException {
-            private static long serialVersionUID = 3203085387160737484L;
+            private static final long serialVersionUID = 3203085387160737484L;
 
             public PacketSendingException(String message, Throwable cause) {
-                super(cause);
+                super(message, cause);
             }
         }
     }

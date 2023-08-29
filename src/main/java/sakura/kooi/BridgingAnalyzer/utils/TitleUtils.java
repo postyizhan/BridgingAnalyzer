@@ -4,9 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
+@SuppressWarnings({"unused", "CallToPrintStackTrace"})
 public class TitleUtils {
-    private static String version = org.bukkit.Bukkit.getServer().getClass().getPackage().getName()
+    private static final String version = org.bukkit.Bukkit.getServer().getClass().getPackage().getName()
             .split("\\.")[3];
 
     // 这个效率实在太低了, 但是我懒得改了, 性能洁癖的自己改吧 (又不是不能用.jpg
@@ -28,17 +30,17 @@ public class TitleUtils {
 
     public static void sendTitle(Player player, String title, String subtitle, int fadeIn, int stay, int fadeOut) {
         try {
-            Object enumTitle = getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0].getField("TITLE").get(null);
-            Object titleChat = getNMSClass("IChatBaseComponent").getDeclaredClasses()[0]
+            Object enumTitle = Objects.requireNonNull(getNMSClass("PacketPlayOutTitle")).getDeclaredClasses()[0].getField("TITLE").get(null);
+            Object titleChat = Objects.requireNonNull(getNMSClass("IChatBaseComponent")).getDeclaredClasses()[0]
                     .getMethod("a", new Class[]{String.class})
                     .invoke(null, "{\"text\":\"" + title + "\"}");
-            Object enumSubtitle = getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0].getField("SUBTITLE")
+            Object enumSubtitle = Objects.requireNonNull(getNMSClass("PacketPlayOutTitle")).getDeclaredClasses()[0].getField("SUBTITLE")
                     .get(null);
-            Object subtitleChat = getNMSClass("IChatBaseComponent").getDeclaredClasses()[0]
+            Object subtitleChat = Objects.requireNonNull(getNMSClass("IChatBaseComponent")).getDeclaredClasses()[0]
                     .getMethod("a", new Class[]{String.class})
                     .invoke(null, "{\"text\":\"" + subtitle + "\"}");
-            Constructor<?> titleConstructor = getNMSClass("PacketPlayOutTitle")
-                    .getConstructor(getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0],
+            Constructor<?> titleConstructor = Objects.requireNonNull(getNMSClass("PacketPlayOutTitle"))
+                    .getConstructor(Objects.requireNonNull(getNMSClass("PacketPlayOutTitle")).getDeclaredClasses()[0],
                             getNMSClass("IChatBaseComponent"), Integer.TYPE, Integer.TYPE, Integer.TYPE);
             Object titlePacket = titleConstructor.newInstance(enumTitle, titleChat,
                     fadeIn, stay, fadeOut);
