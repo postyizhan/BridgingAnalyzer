@@ -7,7 +7,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
-import org.bukkit.entity.Villager.Profession;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -22,23 +21,24 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import sakura.kooi.BridgingAnalyzer.api.BlockSkinProvider;
 import sakura.kooi.BridgingAnalyzer.commands.*;
 import sakura.kooi.BridgingAnalyzer.utils.Metrics;
 import sakura.kooi.BridgingAnalyzer.utils.NoAIUtils;
 import sakura.kooi.BridgingAnalyzer.utils.TitleUtils;
 import sakura.kooi.BridgingAnalyzer.utils.Utils;
-import sakura.kooi.BridgingAnalyzer.api.BlockSkinProvider;
 
+import java.io.File;
 import java.util.HashMap;
 
-@SuppressWarnings("LombokGetterMayBeUsed")
 public class BridgingAnalyzer extends JavaPlugin implements Listener {
     @Getter
     private static BridgingAnalyzer instance;
     @Getter
-    public static final HashMap<Player, Counter> counters = new HashMap<>();
+    private static final HashMap<Player, Counter> counters = new HashMap<>();
     @Getter
     private static final HashMap<Block, MaterialData> placedBlocks = new HashMap<>();
+    @Getter
     @Setter
     private static BlockSkinProvider blockSkinProvider;
 
@@ -55,10 +55,9 @@ public class BridgingAnalyzer extends JavaPlugin implements Listener {
         Inventory inv = p.getInventory();
         for (int i = 0; i < inv.getSize(); i++) {
             ItemStack item = inv.getItem(i);
-            if (item != null && item.getItemMeta() != null && item.getItemMeta().getDisplayName() != null && item.getItemMeta().getDisplayName().contains("Key")) {
-                    continue;
-                }
-            inv.setItem(i, null);
+            if (item == null || item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null || !item.getItemMeta().getDisplayName().contains("Key")) {
+                inv.setItem(i, null);
+            }
         }
     }
 
@@ -72,10 +71,10 @@ public class BridgingAnalyzer extends JavaPlugin implements Listener {
     }
 
     public static void spawnVillager() {
-        for (Entity en : Bukkit.getWorld("world").getEntities())
-            if (en.getType() == EntityType.VILLAGER) if ("靶子".equals(en.getCustomName())) {
+        for (Entity en : Bukkit.getWorld("world").getEntities()) {
+            if (en.getType() == EntityType.VILLAGER && "靶子".equals(en.getCustomName()))
                 en.remove();
-            }
+        }
         for (ArmorStand stand : Bukkit.getWorld("world").getEntitiesByClass(ArmorStand.class)) {
             if (stand.getCustomName() == null) {
                 continue;
@@ -84,7 +83,7 @@ public class BridgingAnalyzer extends JavaPlugin implements Listener {
                 Villager vi = (Villager) stand.getWorld().spawnEntity(stand.getLocation().add(0, 1, 0),
                         EntityType.VILLAGER);
                 vi.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 32766, 254, false, false), true);
-                vi.setProfession(Profession.LIBRARIAN);
+                vi.setProfession(Villager.Profession.LIBRARIAN);
                 vi.setMaxHealth(1);
                 vi.setHealth(1);
                 vi.setCustomName("靶子");
@@ -111,18 +110,18 @@ public class BridgingAnalyzer extends JavaPlugin implements Listener {
     }
 
     public static boolean isPlacedByPlayer(Block b) {
-        if (placedBlocks.containsKey(b)) return placedBlocks.get(b).equals(b.getState().getData());
+        if (getPlacedBlocks().containsKey(b)) return getPlacedBlocks().get(b).equals(b.getState().getData());
         return false;
     }
 
     @EventHandler
     public void antiArmorStandManipulate(PlayerArmorStandManipulateEvent e) {
         e.setCancelled(true);
-        if (e.getPlayer().getGameMode() == GameMode.CREATIVE && e.getPlayer().isOp())
-            if (e.getRightClicked().getCustomName().contains("VillagerSpawnPoint")) {
-                e.getRightClicked().remove();
-                TitleUtils.sendTitle(e.getPlayer(), "", "§a村民刷新点已移除", 10, 20, 10);
-            }
+        if (e.getPlayer().getGameMode() == GameMode.CREATIVE && e.getPlayer().isOp() &&
+                e.getRightClicked().getCustomName().contains("VillagerSpawnPoint")) {
+            e.getRightClicked().remove();
+            TitleUtils.sendTitle(e.getPlayer(), "", "§a村民刷新点已移除", 10, 20, 10);
+        }
     }
 
     @EventHandler
@@ -151,8 +150,13 @@ public class BridgingAnalyzer extends JavaPlugin implements Listener {
     @EventHandler
     public void onDamage(EntityDamageEvent e) {
         if (e.getEntity().getType() == EntityType.PLAYER) {
-            Counter c = BridgingAnalyzer.getCounter((Player) e.getEntity());
-            if (e.getFinalDamage() > 20) {
+            if (!getInstance().getConfig().getBoolean("tnt-damage") &&
+                    e.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
+                e.setDamage(0.0D);
+                return;
+            }
+            Counter c = getCounter((Player) e.getEntity());
+            if (e.getFinalDamage() > 20.0D) {
                 c.reset();
                 teleportCheckPoint((Player) e.getEntity());
                 TitleUtils.sendTitle((Player) e.getEntity(), "",
@@ -186,13 +190,15 @@ public class BridgingAnalyzer extends JavaPlugin implements Listener {
         Metrics metrics = new Metrics(this);
         metrics.addCustomChart(new Metrics.SimplePie("distributeversion", () -> "Open source"));
         blockSkinProvider = new DefaultBlockSkinProvider();
+        // Config
+        if (!(new File(getConfig().getCurrentPath())).exists()) {
+            saveDefaultConfig();
+        }
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(this, this);
         pluginManager.registerEvents(new CounterListener(), this);
         pluginManager.registerEvents(new HighlightListener(), this);
         pluginManager.registerEvents(new TriggerBlockListener(), this);
-        // 资源包
-        // pluginManager.registerEvents(new ResourcePackLoader(), this);
         getCommand("bridge").setExecutor(new BridgeCommand());
         getCommand("clearblock").setExecutor(new ClearCommand());
         getCommand("bsaveworld").setExecutor(new SaveWorldCommand());
@@ -215,6 +221,10 @@ public class BridgingAnalyzer extends JavaPlugin implements Listener {
                 "§bBridgingAnalyzer §7>> §e使用 §a/genvillager §e可在站立位置创建村民刷新点",
                 "§bBridgingAnalyzer §7>> §c掉入虚空会自动回到 §a传送点 §c并重置地图",
                 "§bBridgingAnalyzer §7>> §c注意: 创造模式放置的方块不会被重置, 请在生存模式下练习",
+                "§bBridgingAnalyzer §7>> §f----------------------------------------------------------------",
+                "§bBridgingAnalyzer §7>> §f鸣谢:",
+                "§bBridgingAnalyzer §7>> §7LSDog fixed (no liquid block break in map)",
+                "§bBridgingAnalyzer §7>> §7TheFloodDragon improved and fixed",
                 "§bBridgingAnalyzer §7>> §f----------------------------------------------------------------"
         });
     }
@@ -223,7 +233,7 @@ public class BridgingAnalyzer extends JavaPlugin implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         e.getPlayer().sendMessage(new String[]{
                 "§b§l搭路练习 §7>> §e输入 §6/bridge §e更改练习参数",
-                "§b§l搭路练习 §7>> §6Bilibili @SakuraKooi"
+//                "§b§l搭路练习 §7>> §6Bilibili @SakuraKooi"
         });
         if (e.getPlayer().hasPermission("bridginganalyzer.noclear")) return;
         teleportCheckPoint(e.getPlayer());
@@ -276,6 +286,10 @@ public class BridgingAnalyzer extends JavaPlugin implements Listener {
         if (!BridgingAnalyzer.getCounter(player).isPvPEnabled()) return -1; // cancel
         if (!BridgingAnalyzer.getCounter(damager).isPvPEnabled()) return 1; // enable
         return 0; // accept
+    }
+
+    public static int getReturnHeight() {
+        return getInstance().getConfig().getInt("return-height");
     }
 
 }

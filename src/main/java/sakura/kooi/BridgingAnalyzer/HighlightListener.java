@@ -30,8 +30,8 @@ public class HighlightListener implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler
     public void onFallDown(PlayerMoveEvent e) {
-        if (e.getTo().getY() < 0) {
-            Block historyBlock = highlightHistory.get(e.getPlayer());
+        if (e.getTo().getY() < BridgingAnalyzer.getReturnHeight()) {
+            Block historyBlock = this.highlightHistory.get(e.getPlayer());
             if (historyBlock != null) {
                 e.getPlayer().sendBlockChange(historyBlock.getLocation(), historyBlock.getType(),
                         historyBlock.getData());

@@ -20,6 +20,7 @@ import java.util.HashSet;
 public class Counter {
     public static HashSet<Block> scheduledBreakBlocks = new HashSet<>();
     private ArrayList<Long> counterCPS = new ArrayList<>();
+    @Getter
     private int maxCPS = 0;
     private ArrayList<Long> counterBridge = new ArrayList<>();
     private double maxBridge = 0;
@@ -41,6 +42,7 @@ public class Counter {
     @Getter
     @Setter
     private boolean standBridgeMarkerEnabled = false;
+
     public Counter(Player p) {
         player = p;
     }
@@ -117,10 +119,6 @@ public class Counter {
         return maxBridge;
     }
 
-    public int getMaxCPS() {
-        return maxCPS;
-    }
-
     public void instantBreakBlock() {
         for (Block b : allBlock) {
             Utils.breakBlock(b);
@@ -177,7 +175,8 @@ public class Counter {
             player.getWorld().playSound(player.getLocation(), SoundMachine.get("ITEM_PICKUP", "ENTITY_ITEM_PICKUP"), 1,
                     1);
         }
-
+        // Addition
+        this.player.getInventory().setItem(0, BridgingAnalyzer.getBlockSkinProvider().provide(this.player));
     }
 
     public void teleportCheckPoint() {
@@ -208,7 +207,7 @@ public class Counter {
         breakBlock();
     }
 
-    public class BreakRunnable implements Runnable {
+    public static class BreakRunnable implements Runnable {
         BukkitTask task;
         ArrayList<Block> blocks = new ArrayList<>();
 

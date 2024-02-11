@@ -1,0 +1,12 @@
+# BridgingAnalyzer by.Sakurakooi
+# 搭路练习配置
+# 由 LSDog 增加
+# /bridge reload 来重载配置
+
+tnt-damage: false
+#是否开启tnt对玩家的"伤害" ——指本插件不会记录tnt爆炸受伤大小，而使收到致死伤害的玩家传送回保存点
+#默认: false(不受爆炸伤害，但拥有击退效果)
+
+return-height: -5
+#玩家掉落到y值以下时会“死(传送)”回保存点
+#默认: -5(为防止和小游戏抢判定，可以适当往下一些)

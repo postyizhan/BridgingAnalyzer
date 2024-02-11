@@ -14,7 +14,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import sakura.kooi.BridgingAnalyzer.utils.*;
 
-@SuppressWarnings("SpellCheckingInspection")
 public class TriggerBlockListener implements Listener {
     @EventHandler
     public void antiTriggerBlockCover(BlockPlaceEvent e) {
@@ -91,7 +90,7 @@ public class TriggerBlockListener implements Listener {
     }
 
     @EventHandler
-    public void triggerKnockbackBlock(PlayerMoveEvent e) {
+    public void triggerKnockBackBlock(PlayerMoveEvent e) {
         if (e.getFrom().getBlock().equals(e.getTo().getBlock())) return;
         if (e.getPlayer().getNoDamageTicks() != 0) return;
         if (e.getPlayer().getGameMode() != GameMode.SURVIVAL) return;

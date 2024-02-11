@@ -218,7 +218,6 @@ public enum ParticleEffects {
         }
     }
 
-    @SuppressWarnings("all")
     public void display(ParticleData data, Vector direction, float speed,
                         Location center, Player... players)
             throws ParticleEffects.ParticleVersionException,
