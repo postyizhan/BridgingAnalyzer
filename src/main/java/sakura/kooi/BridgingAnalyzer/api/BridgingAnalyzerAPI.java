@@ -4,6 +4,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import sakura.kooi.BridgingAnalyzer.BridgingAnalyzer;
 
+@Deprecated
+@SuppressWarnings("all")
 public class BridgingAnalyzerAPI {
     public static void setBlockSkinProvider(BlockSkinProvider blockSkinProvider) {
         BridgingAnalyzer.setBlockSkinProvider(blockSkinProvider);

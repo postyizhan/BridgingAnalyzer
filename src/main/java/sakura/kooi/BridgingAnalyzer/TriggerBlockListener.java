@@ -14,6 +14,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import sakura.kooi.BridgingAnalyzer.utils.*;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class TriggerBlockListener implements Listener {
     @EventHandler
     public void antiTriggerBlockCover(BlockPlaceEvent e) {

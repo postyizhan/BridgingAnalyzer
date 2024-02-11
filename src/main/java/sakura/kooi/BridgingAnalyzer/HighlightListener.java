@@ -13,7 +13,7 @@ import sakura.kooi.BridgingAnalyzer.utils.ParticleEffects;
 import java.util.HashMap;
 
 public class HighlightListener implements Listener {
-    private HashMap<Player, Block> highlightHistory = new HashMap<>();
+    private final HashMap<Player, Block> highlightHistory = new HashMap<>();
 
     private Block getRelativeBrick(Block b) {
         Block relative = b.getRelative(BlockFace.EAST);
