@@ -1,5 +1,3 @@
-/.settings/
-/bin/
-/.idea/
-/classes/
-/target
+.gradle
+.idea
+target

@@ -1,7 +1,7 @@
 name: BridgingAnalyzer
 main: sakura.kooi.BridgingAnalyzer.BridgingAnalyzer
-version: 28
-author: SakuraKooi
+version: '${project.version}'
+authors: [ SakuraKooi, CatMoe ]
 commands:
   bridge:
     description: Bridging Analyzer Config

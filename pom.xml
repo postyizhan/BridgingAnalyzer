@@ -6,7 +6,7 @@
 
     <groupId>sakura.kooi.BridgingAnalyzer</groupId>
     <artifactId>BridgingAnalyzer</artifactId>
-    <version>28</version>
+    <version>0.2.8</version>
     <packaging>jar</packaging>
     <description>Minecraft Bridging Practice for bedwars</description>
     <properties>
@@ -107,7 +107,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.28</version>
+            <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
